@@ -1,0 +1,14 @@
+const WA='573134248123',$=s=>document.querySelector(s),R=document.documentElement;
+const setT=t=>{R.dataset.theme=t;$('#theme').textContent=t==='dark'?'☀️':'🌙';localStorage.setItem('t',t)};
+setT(new URLSearchParams(location.search).get('theme')||localStorage.getItem('t')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+$('#theme').onclick=()=>setT(R.dataset.theme==='dark'?'light':'dark');
+$('#burger').onclick=()=>$('#burger').setAttribute('aria-expanded',$('#menu').classList.toggle('open'));document.querySelectorAll('#menu a').forEach(a=>a.onclick=()=>$('#menu').classList.remove('open'));
+const S=[['Urgencias 24 h','Atención de urgencias'],['Medicina general','Adultos y pediatría'],['Medicina interna','Consulta especializada'],['Cirugía','General, ginecológica, oftalmológica, ortopédica y urológica'],['Anestesia','Apoyo quirúrgico'],['Urología','Consulta especializada'],['Diagnóstico cardiovascular','Exámenes cardiovasculares'],['Laboratorio clínico','Toma de muestras y análisis'],['Hospitalización','General adultos y pediátrica'],['Servicio farmacéutico','Farmacia'],['Transporte asistencial básico','Ambulancia']];
+$('#svcs').innerHTML=S.map(([a,b])=>`<div class="svc"><b>${a}</b>${b}</div>`).join('');
+$('#esp').innerHTML=S.filter(s=>!/Urgencias|farmac|Transporte|Hospital|Anestesia/.test(s[0])).map(s=>`<option>${s[0]}</option>`).join('');
+$('#fecha').min=new Date().toISOString().slice(0,10);
+const f=['esp','sede','fecha','franja','nom','doc','epsIn','cel'],v=id=>$('#'+id).value.trim();
+const upd=()=>{$('#sum').innerHTML=v('fecha')&&v('nom')?`<b>Resumen:</b> ${v('esp')} · ${v('sede')} · ${v('fecha')} · ${v('franja')}<br>Paciente: ${v('nom')} · Doc. ${v('doc')||'—'} · ${v('epsIn')||'EPS/particular sin indicar'} · Cel. ${v('cel')||'—'}<br><small>La clínica confirma hora exacta y disponibilidad.</small>`:'Completa fecha y nombre para ver el resumen.'};
+f.forEach(id=>$('#'+id).oninput=upd);
+$('#send').onclick=()=>{if(!v('fecha')||!v('nom'))return alert('Completa al menos fecha y nombre');if(!$('#ok').checked)return alert('Debes autorizar el tratamiento de datos');
+open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hola Clínica Central Someba, solicito cita de ${v('esp')} en ${v('sede')}, el ${v('fecha')}, franja ${v('franja')}. Paciente: ${v('nom')}, documento ${v('doc')}, ${v('epsIn')||'particular'}, celular ${v('cel')}.`)}`)};
